@@ -12,3 +12,40 @@ body {
 .border-red {
   border: 1px solid red;
 }
+
+.forecast-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.forecast-box-date {
+    color: #f9ba32;
+}
+
+.forecast-box-time {
+    color: #f8f1e5;
+}
+.forecast-box-temp {
+    color: #f0810f;
+}
+.forecast-box-des {
+    color: #f8f1e5;
+}
+
+#btnSearch{
+    background: none;
+    border: 2px solid #f9ba32;
+    color: #f9ba32;
+    outline: none;
+}
+
+#btnSearch:hover{
+    background: #f9ba32;
+    color: #426e86;
+}
+
+.search-area{ 
+    margin-top: 20px;
+}

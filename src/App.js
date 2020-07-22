@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css'
 import Spinner from './components/Spinner'
+import Box from './components/Box'
 const apiKey = process.env.REACT_APP_API_KEY
 
 
@@ -10,48 +11,68 @@ export default class App extends Component {
         super(props)
         this.state = {
             weather: null,
-            isLoading: true
+            forecast: null,
+            isLoading: true,
+            city: '',
         }
     }
     componentDidMount() {
         console.log('*--- componentDidMount ---*')
-        // this.callWeather()
         this.getLocation()
     }
 
-    callWeather = async () => {
+    callWeather = async (city) => {
         console.log('*--- Call Wearther ---*')
-        console.log('apiKey:', apiKey)
-        let url = `https://api.openweathermap.org/data/2.5/weather?q=hanoi&appid=${apiKey}&units=metric`
+        let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
         let data = await fetch(url)
         let result = await data.json();
         console.log('result:', result)
         this.setState({ weather: result })
+        url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
+        data = await fetch(url)
+        result = await data.json();
+        console.log('result:', result)
+        this.setState({ forecast: result })
     }
 
     callCurrentPositionWeather = async (latitude, longitude) => {
-        console.log('*--- Call Current Wearther ---*')
-        // this.getLocation();
         let url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
         let data = await fetch(url)
         let result = await data.json();
-        console.log('result-current:', result)
+        console.log('result:', result)
         this.setState({ weather: result })
+        url = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
+        data = await fetch(url)
+        result = await data.json();
+        console.log('result:', result)
+        this.setState({ forecast: result })
         this.setState({ isLoading: false })
     }
 
     getLocation = () => {
-        console.log('*--- getLocation ---*')
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((post) => {
-                console.log('post:', post)
                 this.callCurrentPositionWeather(post.coords.latitude, post.coords.longitude)
             })
         } else {
-            alert("Sorry, browser does not support geolocation!");
+            alert("Sorry, browser does not support geolocation!")
         }
     }
 
+    onSearch = (city) => {
+        // let city = document.getElementById('txtSearch').value
+        this.callWeather(city)
+    }
+
+    myChangeHandler = (event) => {
+        this.setState({ city: event.target.value })
+    }
+
+    handleKey = (event) => {
+        if (event.key === 'Enter') {
+            this.onSearch(this.state.city)
+        }
+    }
 
     render() {
         if (this.state.isLoading) {
@@ -59,12 +80,25 @@ export default class App extends Component {
         }
         return (
             <div className="container-fluid text-white my-auto">
+                <div className="row search-area justify-content-center">
+                    <label>City Name </label>
+                    <input id='txtSearch' type='text' onChange={this.myChangeHandler} onKeyPress={this.handleKey} />
+                    <input id='btnSearch' type='submit' value='Seach' onClick={() => this.onSearch(this.state.city)} />
+                </div>
                 <div className="container mx-auto my-4 py-4">
                     <div className="row justify-content-center text-center">
-                        <h1 className="col-12 display-4 my-2 py-3 text-success">Awesome Weather App</h1>
+                        <h1 className="col-12 display-4 my-2 py-3 text-success">Weather App</h1>
                         <h2 className="col-12">{this.state.weather.name}</h2>
-                        <h3 className="col-12 text-danger">{this.state.weather.main.temp}C</h3>
+                        <h3 className="col-12 text-danger">{this.state.weather.main.temp}°C</h3>
                         <h3 className="col-12">{this.state.weather.weather[0].description}</h3>
+                    </div>
+                </div>
+                <div className="mx-auto my-4 py-4">
+                    <div className="row">
+                        <Box date={this.state.forecast.list[0].dt_txt} temp={this.state.forecast.list[0].main.temp} descript={this.state.forecast.list[0].weather[0].description}></Box>
+                        <Box date={this.state.forecast.list[8].dt_txt} temp={this.state.forecast.list[1].main.temp} descript={this.state.forecast.list[1].weather[0].description}></Box>
+                        <Box date={this.state.forecast.list[16].dt_txt} temp={this.state.forecast.list[2].main.temp} descript={this.state.forecast.list[2].weather[0].description}></Box>
+                        <Box date={this.state.forecast.list[32].dt_txt} temp={this.state.forecast.list[3].main.temp} descript={this.state.forecast.list[3].weather[0].description}></Box>
                     </div>
                 </div>
             </div>
